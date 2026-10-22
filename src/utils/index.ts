@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { safeConfigStorage } from './persistence'
 import { selectAvailableIndex } from './random'
 // 筛选人员数据
 export function filterData(tableData: any[], localRowCount: number) {
@@ -41,6 +42,6 @@ export function themeChange(theme: string) {
   const html = document.querySelectorAll('html')
   if (html) {
     html[0].setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
+    safeConfigStorage.setItem('theme', theme)
   }
 }

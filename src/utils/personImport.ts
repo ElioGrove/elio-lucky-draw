@@ -49,6 +49,13 @@ export async function checkWorkbookArchive(buffer: ArrayBuffer) {
     throw new Error('importInvalid')
   const count = view.getUint16(end + 10, true)
   let offset = view.getUint32(end + 16, true)
+  if (!count || view.getUint16(end + 4, true) !== 0 || view.getUint16(end + 6, true) !== 0
+    || view.getUint16(end + 8, true) !== count
+    || end + 22 + view.getUint16(end + 20, true) !== view.byteLength
+    || offset + view.getUint32(end + 12, true) !== end) {
+    throw new Error('importInvalid')
+  }
+  const directoryStart = offset
   let expanded = 0
   for (let entry = 0; entry < count; entry++) {
     if (offset + 46 > end || view.getUint32(offset, true) !== 0x02014B50)
@@ -59,10 +66,16 @@ export async function checkWorkbookArchive(buffer: ArrayBuffer) {
     const local = view.getUint32(offset + 42, true)
     if (size === 0xFFFFFFFF || compressedSize === 0xFFFFFFFF || size + expanded > importLimits.expandedBytes)
       throw new Error('importLimit')
-    if (local + 30 > offset || view.getUint32(local, true) !== 0x04034B50)
+    if (local + 30 > directoryStart || view.getUint32(local, true) !== 0x04034B50)
       throw new Error('importInvalid')
+    // Reject inconsistent local headers that a ZIP parser could interpret differently.
+    const flags = view.getUint16(offset + 8, true)
+    if (flags & 1 || flags !== view.getUint16(local + 6, true) || method !== view.getUint16(local + 8, true)
+      || (!(flags & 8) && (compressedSize !== view.getUint32(local + 18, true) || size !== view.getUint32(local + 22, true)))) {
+      throw new Error('importInvalid')
+    }
     const start = local + 30 + view.getUint16(local + 26, true) + view.getUint16(local + 28, true)
-    if (start + compressedSize > offset)
+    if (start + compressedSize > directoryStart)
       throw new Error('importInvalid')
     const bytes = new Blob([buffer.slice(start, start + compressedSize)]).stream()
     const reader = (method === 0 ? bytes : method === 8 ? bytes.pipeThrough(new DecompressionStream('deflate-raw')) : null)?.getReader()
@@ -85,4 +98,6 @@ export async function checkWorkbookArchive(buffer: ArrayBuffer) {
     expanded += actual
     offset += 46 + view.getUint16(offset + 28, true) + view.getUint16(offset + 30, true) + view.getUint16(offset + 32, true)
   }
+  if (offset !== end)
+    throw new Error('importInvalid')
 }

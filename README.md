@@ -26,7 +26,7 @@
 
 ### 环境要求
 
-- Node.js >= 22.16.0
+- Node.js 22.23.4（`.node-version` 固定的安全补丁版）；也支持 24.22.1+ 或 26.12.1+，须满足 `package.json` 的 engines 范围
 - pnpm 11.8.0（与 package.json 的 packageManager 一致）
 
 ### 安装依赖
@@ -65,11 +65,17 @@ pnpm check
 
 ## 部署
 
-### Cloudflare Workers Static Assets
+### 当前生产环境：Cloudflare Pages
 
-项目使用 `wrangler.jsonc` 将 Vite 的 `dist` 目录作为 Workers Static Assets 部署，并为 Vue Router 启用了 SPA fallback。Wrangler 已作为项目开发依赖安装，无需全局安装。
+生产站点为 `https://luck.thus.chat`，对应 Pages 项目 `luck-thus-chat`，已连接本仓库。向 `main` 推送会触发现有 Cloudflare Pages 构建；以 GitHub 的 `Cloudflare Pages` 检查成功为发布完成依据。构建命令为 `pnpm build`，产物目录为 `dist`。
 
-Cloudflare Workers Builds 的 Node.js 版本已通过 `.node-version` 固定为 `22.16.0`。
+Pages 在没有顶层 `404.html` 时默认提供 SPA 回退，无需额外的全路径 `_redirects` 重写。保留 `public/_headers` 中的安全头和默认缓存策略。不要把下述 Workers 部署命令当作更新现有 Pages 项目的命令。
+
+### 可选部署：Cloudflare Workers Static Assets
+
+仓库另提供 `wrangler.jsonc`，可将 Vite 的 `dist` 目录作为 Workers Static Assets 部署，并为 Vue Router 启用 SPA fallback。Wrangler 已作为项目开发依赖安装，无需全局安装；此配置不会管理现有 Pages 项目。
+
+Cloudflare 构建的 Node.js 版本已通过 `.node-version` 固定为 `22.23.4`，包含 2026-10-21 的安全修复；若控制台配置了 `NODE_VERSION`，也应设置为该版本以避免覆盖文件配置。
 
 1. **安装依赖并登录 Cloudflare**
    ```bash
@@ -139,7 +145,6 @@ SheetJS 依赖按官方建议固定在 `vendor/xlsx-0.20.3.tgz`，避免部署�
 luck/
 ├── public/              # 静态资源
 │   ├── images/         # 图片资源
-│   ├── _redirects      # Cloudflare Pages 兼容重定向规则
 │   ├── _headers        # Cloudflare 安全头和静态资源缓存规则
 │   └── favicon.svg     # 网站图标
 ├── src/

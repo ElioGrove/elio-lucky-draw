@@ -93,7 +93,7 @@ export const usePrizeConfig = defineStore('prize', {
       const uniquePrizeIds = new Set(prizeIds.map(String))
 
       for (const prizeId of uniquePrizeIds) {
-        const prize = this.prizeConfig.prizeList.find(item => String(item.id) === prizeId)
+        const prize = [...this.prizeConfig.prizeList, this.prizeConfig.temporaryPrize].find(item => String(item.id) === prizeId)
         if (!prize || prize.isUsedCount <= 0) {
           continue
         }

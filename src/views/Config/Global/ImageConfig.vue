@@ -24,7 +24,7 @@ const imageDbStore = localforage.createInstance({
 async function handleFileChange(e: Event) {
   const input = e.target as HTMLInputElement
   const file = input.files?.[0]
-  if (!file) {
+  if (!file || busy.value) {
     return
   }
   if (!file.type.startsWith('image/')) {
@@ -39,8 +39,8 @@ async function handleFileChange(e: Event) {
   }
 
   try {
-    const { dataUrl, fileName } = await readFileData(file)
     await run(async () => {
+      const { dataUrl, fileName } = await readFileData(file)
       await imageDbStore.setItem(`${new Date().getTime().toString()}+${fileName}`, dataUrl)
       await getImageDbStore()
     })

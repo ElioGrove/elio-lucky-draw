@@ -72,6 +72,46 @@ describe('draw state consistency', () => {
     expect(personStore.getNotThisPrizePersonList).toEqual([])
   })
 
+  it('does not roll back another winner when an old row is removed twice', () => {
+    const prizes = usePrizeConfig()
+    const people = usePersonConfig()
+    const prize = prizes.getPrizeConfig[0]
+    const person = createPerson()
+    people.addNotPersonList([person])
+    people.addAlreadyPersonList([person], prize)
+    prize.isUsedCount = 2
+    const oldRow = structuredClone(person)
+    people.deletePerson(oldRow)
+    people.deletePerson(oldRow)
+    expect(prize.isUsedCount).toBe(1)
+  })
+
+  it('uses current history when moving a stale row back to the pool twice', () => {
+    const prizes = usePrizeConfig()
+    const people = usePersonConfig()
+    const prize = prizes.getPrizeConfig[0]
+    const person = createPerson()
+    people.addNotPersonList([person])
+    people.addAlreadyPersonList([person], prize)
+    prize.isUsedCount = 2
+    const oldRow = structuredClone(person)
+    people.moveAlreadyToNot(oldRow)
+    people.moveAlreadyToNot(oldRow)
+    expect(prize.isUsedCount).toBe(1)
+  })
+
+  it('rolls back a still active temporary prize when its winner is removed', () => {
+    const prizes = usePrizeConfig()
+    const people = usePersonConfig()
+    const prize = { ...JSON.parse(JSON.stringify(prizes.getPrizeConfig[0])), id: 'temporary', isUsedCount: 1 }
+    prizes.setTemporaryPrize(prize)
+    const person = createPerson()
+    people.addNotPersonList([person])
+    people.addAlreadyPersonList([person], prize)
+    people.moveAlreadyToNot(person)
+    expect(prizes.getTemporaryPrize.isUsedCount).toBe(0)
+  })
+
   it('repositions every participant without removing winners or changing prize history', () => {
     const personStore = usePersonConfig()
     const prizeStore = usePrizeConfig()

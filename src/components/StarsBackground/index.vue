@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useElementSize } from '@vueuse/core'
-import localforage from 'localforage'
 import Sparticles from 'sparticles'
-import { onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
+import ImageSync from '@/components/ImageSync/index.vue'
 
 interface SparticlesInstance {
   destroy: () => void
@@ -20,11 +20,6 @@ const props = defineProps({
   },
 })
 
-const imageDbStore = localforage.createInstance({
-  name: 'imgStore',
-})
-
-const imgUrl = ref('')
 const starRef = ref<HTMLElement | null>(null)
 const sparticles = shallowRef<SparticlesInstance | null>(null)
 const { width, height } = useElementSize(starRef)
@@ -52,28 +47,14 @@ function handleResize() {
   }
 }
 
-async function getImageStoreItem(item: any): Promise<string> {
-  if (item?.url === 'Storage') {
-    const key = item.id
-    return await imageDbStore.getItem(key) as string
-  }
-  return item?.url || ''
-}
-
 onMounted(() => {
-  getImageStoreItem(props.homeBackground).then((image) => {
-    imgUrl.value = image
-  })
-
   if (starRef.value) {
     addSparticles(starRef.value, width.value, height.value)
   }
-
-  window.addEventListener('resize', handleResize)
 })
+watch([width, height], handleResize)
 
 onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
   sparticles.value?.destroy()
   sparticles.value = null
 })
@@ -81,7 +62,7 @@ onUnmounted(() => {
 
 <template>
   <div v-if="homeBackground.url" class="home-background w-screen h-screen overflow-hidden">
-    <img :src="imgUrl" class="w-full h-full object-cover" alt="">
+    <ImageSync :img-item="props.homeBackground" class="w-full h-full !rounded-none" alt="" />
   </div>
   <div v-else ref="starRef" class="w-screen h-screen overflow-hidden" />
 </template>

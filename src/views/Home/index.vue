@@ -341,7 +341,7 @@ function render() {
   }
 }
 async function enterLottery() {
-  if (!canOperate.value || objects.value.length === 0) {
+  if (!canOperate.value || currentStatus.value !== 0 || objects.value.length === 0) {
     return
   }
   await prepareLottery(1000)
@@ -371,7 +371,7 @@ async function prepareLottery(duration: number) {
 }
 // 开始抽奖
 function startLottery() {
-  if (!canOperate.value) {
+  if (!canOperate.value || currentStatus.value !== 1) {
     return
   }
   // 验证是否已抽完全部奖项
@@ -418,7 +418,7 @@ function startLottery() {
 }
 
 async function stopLottery() {
-  if (!canOperate.value) {
+  if (!canOperate.value || currentStatus.value !== 2) {
     return
   }
   //   clearInterval(intervalTimer.value)
@@ -598,7 +598,14 @@ function randomBallData(mod: 'default' | 'sphere' = 'default') {
   }, 200)
 }
 // 监听键盘
-function listenKeyboard(e: any) {
+function listenKeyboard(e: KeyboardEvent) {
+  // Let forms, dialogs and focused controls handle their own keyboard actions.
+  if (e.defaultPrevented || e.repeat || document.querySelector('dialog[open]')
+    || (e.keyCode === 32 && e.target instanceof Element && e.target.closest('input, textarea, select, button, a, [contenteditable]:not([contenteditable="false"])'))) {
+    return
+  }
+  if (e.keyCode === 32)
+    e.preventDefault()
   // 当不可操作时，仅允许空格/ESC 触发逻辑，其它按键忽略
   if (e.keyCode !== 32 && e.keyCode !== 27 && !canOperate.value) {
     return
@@ -802,7 +809,7 @@ onUnmounted(() => {
     <!-- end -->
   </div>
   <StarsBackground :home-background="homeBackground" />
-  <PrizeList class="absolute left-0 top-32" />
+  <PrizeList class="absolute left-0 top-32" :inert="currentStatus >= 2" />
 </template>
 
 <style scoped lang="scss">

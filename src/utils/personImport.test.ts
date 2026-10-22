@@ -34,4 +34,29 @@ describe('bounded participant import', () => {
     }
     await expect(checkWorkbookArchive(data)).rejects.toThrow('importLimit')
   })
+
+  it('rejects a forged empty directory instead of skipping expansion checks', async () => {
+    const data = workbook([{ Number: '1', Name: 'A' }])
+    const view = new DataView(data)
+    view.setUint16(data.byteLength - 22 + 8, 0, true)
+    view.setUint16(data.byteLength - 22 + 10, 0, true)
+    await expect(checkWorkbookArchive(data)).rejects.toThrow('importInvalid')
+  })
+
+  it('rejects conflicting local and central sizes', async () => {
+    const data = workbook([{ Number: '1', Name: 'A' }])
+    const view = new DataView(data)
+    view.setUint32(18, view.getUint32(18, true) + 1, true)
+    await expect(checkWorkbookArchive(data)).rejects.toThrow('importInvalid')
+  })
+
+  it('checks actual deflated workbook contents and accepts legacy XLS', async () => {
+    const book = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(book, XLSX.utils.json_to_sheet([{ Number: '1', Name: 'A' }]), 'People')
+    for (const bookType of ['xlsx', 'xls'] as const) {
+      const data = XLSX.write(book, { type: 'array', bookType, compression: true }) as ArrayBuffer
+      await checkWorkbookArchive(data)
+      expect(parsePersonWorkbook(data)[0]).toMatchObject({ uid: '1', name: 'A' })
+    }
+  })
 })

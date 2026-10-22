@@ -87,7 +87,10 @@ export const usePersonConfig = defineStore('person', {
       if (person.id === undefined || person.id == null) {
         return
       }
-      const prizeIds = [...person.prizeId]
+      const stored = this.personConfig.allPersonList.find(item => item.id === person.id)
+      if (!stored)
+        return
+      const prizeIds = [...stored.prizeId]
       for (let i = 0; i < this.personConfig.allPersonList.length; i++) {
         if (person.id === this.personConfig.allPersonList[i].id) {
           this.personConfig.allPersonList[i].isWin = false
@@ -106,7 +109,10 @@ export const usePersonConfig = defineStore('person', {
     // 删除指定人员
     deletePerson(person: IPersonConfig) {
       if (person.id !== undefined && person.id != null) {
-        const prizeIds = [...person.prizeId]
+        const stored = this.personConfig.allPersonList.find(item => item.id === person.id)
+        if (!stored)
+          return
+        const prizeIds = [...stored.prizeId]
         this.personConfig.allPersonList = this.personConfig.allPersonList.filter((item: IPersonConfig) => item.id !== person.id)
         this.personConfig.alreadyPersonList = this.personConfig.alreadyPersonList.filter((item: IPersonConfig) => item.id !== person.id)
         usePrizeConfig().rollbackPrizeWins(prizeIds)

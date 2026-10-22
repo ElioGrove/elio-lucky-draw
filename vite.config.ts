@@ -1,11 +1,11 @@
 /// <reference types="vitest" />
 
+import { readFileSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig } from 'vite'
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 // https://vitejs.dev/config/
 
 export default defineConfig(({ mode }) => {
@@ -30,13 +30,22 @@ export default defineConfig(({ mode }) => {
                     brotliSize: true, // 从源代码中收集 brotli 大小并将其显示在图表中
                 })
             ] : []),
-            // SVG图标插件始终启用，但对file模式进行优化
-            createSvgIconsPlugin({
-                // 指定需要缓存的图标文件夹
-                iconDirs: [path.resolve(process.cwd(), 'src/icons')],
-                // 指定symbolId格式
-                symbolId: 'icon-[dir]-[name]',
-            }),
+            // Trusted local icons only need a sprite, not an SVG/CSS compiler.
+            {
+                name: 'local-svg-sprite',
+                transformIndexHtml() {
+                    const directory = path.resolve(__dirname, 'src/icons')
+                    const symbols = readdirSync(directory).filter(file => file.endsWith('.svg')).sort().map((file) => {
+                        const source = readFileSync(path.join(directory, file), 'utf8')
+                        const svg = source.match(/<svg\b([^>]*)>([\s\S]*?)<\/svg>/)
+                        if (!svg)
+                            throw new Error(`Invalid SVG icon: ${file}`)
+                        const attributes = svg[1].replace(/\s(?:width|height)="[^"]*"/g, '')
+                        return `<symbol id="icon-${path.basename(file, '.svg')}"${attributes}>${svg[2]}</symbol>`
+                    }).join('')
+                    return [{ tag: 'svg', attrs: { xmlns: 'http://www.w3.org/2000/svg', 'aria-hidden': 'true', style: 'position:absolute;width:0;height:0;overflow:hidden' }, children: symbols, injectTo: 'body-prepend' as const }]
+                },
+            },
         ],
         server: {
             host: 'localhost',

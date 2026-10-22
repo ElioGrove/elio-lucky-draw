@@ -10,7 +10,6 @@ import i18n from '@/locales/i18n'
 import router from '@/router'
 import App from './App.vue'
 // 全局svg组件
-import 'virtual:svg-icons-register'
 import './style.css'
 import './style/markdown.css'
 import './style/style.scss'

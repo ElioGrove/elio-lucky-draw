@@ -70,4 +70,32 @@ describe('draw result responsiveness', () => {
     }
     finally { wrapper.unmount() }
   })
+
+  it('ignores shortcut keys in dialogs, form controls and repeated keydown events', async () => {
+    const { wrapper, stores } = await showResult()
+    const dialog = document.createElement('dialog')
+    const input = document.createElement('input')
+    document.body.append(dialog, input)
+    const space = (repeat = false) => new KeyboardEvent('keydown', { key: ' ', keyCode: 32, bubbles: true, cancelable: true, repeat })
+    try {
+      window.dispatchEvent(space(true))
+      input.dispatchEvent(space())
+      dialog.setAttribute('open', '')
+      window.dispatchEvent(space())
+      await nextTick()
+      expect(stores.personConfig.getAlreadyPersonList).toHaveLength(0)
+      expect(wrapper.find('.enStop').exists()).toBe(true)
+      dialog.removeAttribute('open')
+      const event = space()
+      window.dispatchEvent(event)
+      await nextTick()
+      expect(event.defaultPrevented).toBe(true)
+      expect(stores.personConfig.getAlreadyPersonList).toHaveLength(3)
+    }
+    finally {
+      dialog.remove()
+      input.remove()
+      wrapper.unmount()
+    }
+  })
 })
