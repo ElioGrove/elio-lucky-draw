@@ -19,7 +19,7 @@ const { t } = useI18n()
             {{ t('support.githubDescription') }}
           </p>
           <a
-            href="https://github.com/xiaolinbaba/xiaolin-lucky-draw-web"
+            href="https://github.com/ElioGrove/elio-lucky-draw-web"
             target="_blank" rel="noopener noreferrer"
             class="btn btn-primary btn-sm h-auto min-h-10 max-w-full whitespace-normal py-2 text-center"
           >

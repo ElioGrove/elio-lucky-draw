@@ -1,12 +1,12 @@
 # Luck — Open-source Free Online Lottery System (开源免费在线抽奖系统)
 
-> Luck is a free, open-source, no-login online lottery / raffle / lucky-draw web application. It lets you import a list of participants from Excel, configure multiple prize tiers, and run a fair, animated random draw entirely in the browser. All data is stored locally; nothing is uploaded to a server. Built and published by XIAOLIN AI LAB. Live at https://luck.thus.chat/
+> Luck is a free, open-source, no-login online lottery / raffle / lucky-draw web application. It lets you import a list of participants from Excel, configure multiple prize tiers, and run a fair, animated random draw entirely in the browser. All data is stored locally; nothing is uploaded to a server. Built and published by ELIO AI LAB. Live at https://luck.thus.chat/
 
 ## Overview
 
 Luck is a single-page web application for running prize draws and lotteries during live events. Typical scenarios include company annual parties (年会抽奖), team meetups, conferences, classrooms, livestreams and community giveaways. Unlike most online lottery services, Luck has no registration, no paywall and no backend dependency: the entire draw runs client-side in the user's browser, and participant/prize data is persisted locally via the browser's storage (localStorage and IndexedDB). This makes it fast to start, privacy-preserving, and usable offline once loaded.
 
-The project is open-source under the MIT License and is published by XIAOLIN AI LAB at https://luck.thus.chat/.
+The project is open-source under the MIT License and is published by ELIO AI LAB at https://luck.thus.chat/.
 
 ## Who it is for
 
@@ -65,5 +65,5 @@ Luck does not require an account and does not send participant or prize data to 
 ## License and publisher
 
 - License: MIT
-- Publisher: XIAOLIN AI LAB
+- Publisher: ELIO AI LAB
 - Website: https://luck.thus.chat/

@@ -1,5 +1,5 @@
 # robots.txt for https://luck.thus.chat/
-# Luck — 开源免费在线抽奖系统 · XIAOLIN AI LAB
+# Luck — 开源免费在线抽奖系统 · ELIO AI LAB
 
 # General web/search crawlers: allow everything
 User-agent: *
