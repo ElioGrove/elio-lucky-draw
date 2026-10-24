@@ -91,8 +91,8 @@ function handleMobileNavigation(event: Event) {
 
         <footer class="mt-auto border-t border-base-content/10 bg-base-100 px-4 py-3 text-center text-xs text-base-content/60">
           <p class="m-0">
-            &copy; {{ currentYear }} ELIO AI LAB.
-            <a href="mailto:ceo@thus.chat" class="link-hover ml-1 font-medium text-base-content">EMAIL</a>
+            &copy; {{ currentYear }} <a href="https://www.thus.chat/" class="link-hover">ELIO AI LAB</a>.
+            <a href="mailto:ceo@thus.chat" class="link-hover ml-1 font-medium text-base-content">EMAIL</a>. Elio Grove
           </p>
         </footer>
       </div>
